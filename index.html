@@ -23,7 +23,7 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-      gap: 16px;
+      gap: 24px;
     }
     input {
       width: 80%;
@@ -39,6 +39,9 @@
     input::placeholder { color: #666; }
     input:focus { background: #333; }
     .hint { color: #555; font-family: monospace; font-size: 14px; }
+    .field { display: flex; flex-direction: column; gap: 8px; width: 80%; max-width: 600px; }
+    label { color: #888; font-family: monospace; font-size: 14px; }
+    .field input { width: 100%; }
   </style>
 </head>
 <body>
@@ -83,13 +86,19 @@
     function showInput() {
       document.body.innerHTML = `
         <div class="input-screen">
-          <input type="text" id="url" placeholder="YouTube URL or video ID" autofocus>
-          <input type="text" id="chat" placeholder="Twitch channel (optional)">
+          <div class="field">
+            <label>YouTube URL or video ID</label>
+            <input type="text" id="url" placeholder="https://youtube.com/watch?v=..." autofocus>
+          </div>
+          <div class="field">
+            <label>Twitch channel (optional)</label>
+            <input type="text" id="twitch" placeholder="channel_name">
+          </div>
           <div class="hint">Press Enter to play</div>
         </div>
       `;
       const urlInput = document.getElementById('url');
-      const chatInput = document.getElementById('chat');
+      const chatInput = document.getElementById('twitch');
 
       function submit() {
         const videoId = extractVideoId(urlInput.value.trim());
