@@ -7,7 +7,16 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
-    iframe { width: 100vw; height: 100vh; border: none; }
+    #video { width: 100vw; height: 100vh; border: none; }
+    #chat {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 350px;
+      height: 100vh;
+      border: none;
+      background: rgba(0,0,0,0.8);
+    }
     .input-screen {
       display: flex;
       flex-direction: column;
@@ -36,55 +45,73 @@
   <script>
     function extractVideoId(input) {
       if (!input) return null;
-      // Direct video ID (11 chars)
       if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
-      // youtu.be/VIDEO_ID
       let match = input.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
       if (match) return match[1];
-      // youtube.com/watch?v=VIDEO_ID
       match = input.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
       if (match) return match[1];
-      // youtube.com/embed/VIDEO_ID
       match = input.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
       if (match) return match[1];
-      // youtube.com/v/VIDEO_ID
       match = input.match(/youtube\.com\/v\/([a-zA-Z0-9_-]{11})/);
       if (match) return match[1];
       return null;
     }
 
-    function playVideo(videoId) {
-      document.body.innerHTML = `<iframe
+    function extractTwitchChannel(input) {
+      if (!input) return null;
+      // Direct channel name
+      if (/^[a-zA-Z0-9_]{3,25}$/.test(input)) return input.toLowerCase();
+      // twitch.tv/channel
+      let match = input.match(/twitch\.tv\/([a-zA-Z0-9_]{3,25})/);
+      if (match) return match[1].toLowerCase();
+      return null;
+    }
+
+    function play(videoId, channel) {
+      let html = `<iframe id="video"
         src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&rel=0"
         allow="autoplay; fullscreen; picture-in-picture"
         allowfullscreen></iframe>`;
+      if (channel) {
+        html += `<iframe id="chat"
+          src="https://www.twitch.tv/embed/${channel}/chat?parent=victortaelin.github.io&darkpopout"
+          ></iframe>`;
+      }
+      document.body.innerHTML = html;
     }
 
     function showInput() {
       document.body.innerHTML = `
         <div class="input-screen">
-          <input type="text" id="url" placeholder="Paste YouTube URL or video ID" autofocus>
+          <input type="text" id="url" placeholder="YouTube URL or video ID" autofocus>
+          <input type="text" id="chat" placeholder="Twitch channel (optional)">
           <div class="hint">Press Enter to play</div>
         </div>
       `;
-      document.getElementById('url').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          const videoId = extractVideoId(e.target.value.trim());
-          if (videoId) {
-            history.replaceState(null, '', '?v=' + videoId);
-            playVideo(videoId);
-          }
+      const urlInput = document.getElementById('url');
+      const chatInput = document.getElementById('chat');
+
+      function submit() {
+        const videoId = extractVideoId(urlInput.value.trim());
+        const channel = extractTwitchChannel(chatInput.value.trim());
+        if (videoId) {
+          let qs = '?v=' + videoId;
+          if (channel) qs += '&chat=' + channel;
+          history.replaceState(null, '', qs);
+          play(videoId, channel);
         }
-      });
+      }
+
+      urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+      chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
     }
 
-    // Check URL params
     const params = new URLSearchParams(window.location.search);
-    const vParam = params.get('v') || params.get('url') || '';
-    const videoId = extractVideoId(vParam);
+    const videoId = extractVideoId(params.get('v') || params.get('url') || '');
+    const channel = extractTwitchChannel(params.get('chat') || '');
 
     if (videoId) {
-      playVideo(videoId);
+      play(videoId, channel);
     } else {
       showInput();
     }
