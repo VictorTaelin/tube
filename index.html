@@ -55,7 +55,7 @@
 
     function playVideo(videoId) {
       document.body.innerHTML = `<iframe
-        src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&controls=1&modestbranding=1&rel=0"
+        src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&rel=0"
         allow="autoplay; fullscreen; picture-in-picture"
         allowfullscreen></iframe>`;
     }
