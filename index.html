@@ -10,12 +10,12 @@
     #video { width: 100vw; height: 100vh; border: none; }
     #chat {
       position: fixed;
-      left: 0;
+      left: 20px;
       top: 0;
-      width: 350px;
+      width: 240px;
       height: 100vh;
       border: none;
-      background: rgba(0,0,0,0.8);
+      background: transparent;
     }
     .input-screen {
       display: flex;
@@ -77,7 +77,7 @@
         allowfullscreen></iframe>`;
       if (channel) {
         html += `<iframe id="chat"
-          src="https://www.twitch.tv/embed/${channel}/chat?parent=victortaelin.github.io&darkpopout"
+          src="https://nightdev.com/hosted/obschat/?channel=${channel}&fade=false&bots=false&hide_commands=true&font_size=18&theme=dark"
           ></iframe>`;
       }
       document.body.innerHTML = html;
